@@ -5,16 +5,10 @@ import com.example.demo.DataBaseHandler;
 import com.example.demo.Helper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
-import javafx.scene.control.skin.TextFieldSkin;
-import javafx.stage.Stage;
 
 import javax.sound.sampled.*;
 import java.io.File;
@@ -23,9 +17,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Objects;
 import java.util.ResourceBundle;
 import org.controlsfx.control.textfield.*;
 

@@ -1,9 +1,12 @@
 package com.example.demo;
 
-import javafx.beans.binding.SetBinding;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.SortedSet;
@@ -225,6 +228,60 @@ public class DataBaseHandler extends Configs{
             e.printStackTrace();
         }
         return name;
+    }
+    public Workbook getAllMarksInExcel(String fullname){
+        Workbook workbook = new XSSFWorkbook();
+        String sql = "SELECT * FROM "+Const.USER_TABLE+" WHERE fullname = '"+fullname+"'";
+        try {
+            PreparedStatement preparedStatement = getDbConnection().prepareStatement(sql);
+
+            ResultSet userSet = preparedStatement.executeQuery();
+            userSet.next();
+            sql = "SELECT * FROM "+Const.MARK_TABLE
+                    +" WHERE idstudent = '"+userSet.getString("iduser")+"'";
+            preparedStatement = getDbConnection().prepareStatement(sql);
+            ResultSet marksSet = preparedStatement.executeQuery();
+
+            SortedSet<String> dates = new TreeSet<>();
+            SortedSet<String> subjects = new TreeSet<>();
+            while (marksSet.next()){
+                dates.add(marksSet.getString("date"));
+                subjects.add(marksSet.getString("subject"));
+            }
+            marksSet.beforeFirst();
+            Sheet sheet = workbook.createSheet(Const.STUDENT_NAME);
+            Row nameRow = sheet.createRow(0);
+            nameRow.createCell(0).setCellValue(Const.STUDENT_NAME);
+            Row infoRow = sheet.createRow(1);
+            infoRow.createCell(0).setCellValue("subject");
+            int j = 1;
+            for(String i : dates){
+                infoRow.createCell(j).setCellValue(i);
+                j++;
+            }
+            int rowNum = 2;
+            for(String i : subjects){
+                Row row = sheet.createRow(rowNum);
+                row.createCell(0).setCellValue(i);
+                int count = 1;
+                for (int k = 0; k < dates.size(); k++) {
+                    while (marksSet.next()){
+                        if(marksSet.getString("subject").equals(i)
+                                & marksSet.getString("date").equals(infoRow.getCell(count).toString())){
+                            row.createCell(count).setCellValue(marksSet.getInt("mark"));
+                        }
+                    }
+                    marksSet.beforeFirst();
+                    count++;
+                }
+                rowNum++;
+            }
+            return workbook;
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     public String getTeacherSubject(String email){
         String sql = "SELECT * FROM teachers WHERE email = '"+email+"'";
