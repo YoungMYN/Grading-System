@@ -37,19 +37,19 @@ public class DataBaseHandler extends Configs{
 
     }
     private ResultSet getStudent (String fullname, String group){
-            String select = "SELECT * " + "FROM " + Const.USER_TABLE + " WHERE `" + Const.USER_NAME + "`=? "
-                    + "AND `" + Const.USER_GROUP + "`=?";
-            ResultSet resultSet = null;
-            try {
-                PreparedStatement preparedStatement = getDbConnection().prepareStatement(select);
-                preparedStatement.setString(1, fullname);
-                preparedStatement.setString(2, group);
-                resultSet = preparedStatement.executeQuery();
-            } catch (SQLException | ClassNotFoundException e) {
-                Const.HAVE_ERROR = 1;
-                e.printStackTrace();
-            }
-            return resultSet;
+        String select = "SELECT * " + "FROM " + Const.USER_TABLE + " WHERE `" + Const.USER_NAME + "`=? "
+                + "AND `" + Const.USER_GROUP + "`=?";
+        ResultSet resultSet = null;
+        try {
+            PreparedStatement preparedStatement = getDbConnection().prepareStatement(select);
+            preparedStatement.setString(1, fullname);
+            preparedStatement.setString(2, group);
+            resultSet = preparedStatement.executeQuery();
+        } catch (SQLException | ClassNotFoundException e) {
+            Const.HAVE_ERROR = 1;
+            e.printStackTrace();
+        }
+        return resultSet;
     }
     public ResultSet getAllStudentsWithMarksByCurrentSubject (String group){
         String select = "SELECT * " + "FROM " + Const.USER_TABLE+
@@ -329,8 +329,8 @@ public class DataBaseHandler extends Configs{
             preparedStatement.executeUpdate();
         }
         catch (SQLException | ClassNotFoundException| NullPointerException e) {
-                Const.HAVE_ERROR = 1;
-                e.printStackTrace();
+            Const.HAVE_ERROR = 1;
+            e.printStackTrace();
         }
     }
 

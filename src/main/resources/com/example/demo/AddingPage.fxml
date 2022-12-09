@@ -31,7 +31,7 @@
          </effect></RadioButton>
       <ComboBox fx:id="groups" layoutX="225.0" layoutY="88.0" onAction="#onGroupSelected" prefWidth="150.0" promptText="Group" style="-fx-background-color: e5f4ff;" />
       <ComboBox fx:id="marks" layoutX="225.0" layoutY="240.0" prefWidth="150.0" promptText="Mark" style="-fx-background-color: e5f4ff;" />
-      <TextField fx:id="errorWindow" editable="false" layoutX="407.0" layoutY="14.0" style="-fx-background-color: FF703B;" text="Error with student data" visible="false">
+      <TextField fx:id="errorWindow" editable="false" layoutX="211.0" layoutY="14.0" style="-fx-background-color: FF703B;" text="Error with student data" visible="false">
          <font>
             <Font name="Berlin Sans FB" size="15.0" />
          </font>

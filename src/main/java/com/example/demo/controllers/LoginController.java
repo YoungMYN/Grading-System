@@ -24,7 +24,7 @@ public class LoginController implements Initializable {
     private void login(ActionEvent event){
         DataBaseHandler dataBaseHandler = new DataBaseHandler();
         if(Const.ARE_TEACHER==1){
-            if(dataBaseHandler.checkTeacher(email.getText(), password.getText())){
+            if(dataBaseHandler.checkTeacher(email.getText(), Helper.md5Custom(password.getText()))){
                 System.out.println("passed");
                 Const.TEACHER_NAME = dataBaseHandler.getTeacherName(email.getText());
                 Const.TEACHER_SUBJECT = dataBaseHandler.getTeacherSubject(email.getText());
@@ -39,7 +39,7 @@ public class LoginController implements Initializable {
             }
         }
         else{
-            if(dataBaseHandler.checkStudent(email.getText(), password.getText())){
+            if(dataBaseHandler.checkStudent(email.getText(), Helper.md5Custom(password.getText()))){
                 System.out.println("passed");
                 Const.STUDENT_NAME = dataBaseHandler.getStudentName(email.getText());
                 System.out.println(Const.STUDENT_NAME);
