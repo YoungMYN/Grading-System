@@ -1,26 +1,33 @@
 package com.example.demo;
 
 
+import javafx.fxml.Initializable;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
-public class DataBaseHandler extends Configs{
-    Connection dbConnection;
+public class DataBaseHandler extends Configs {
+    private Connection dbConnection;
 
-    public Connection getDbConnection() throws ClassNotFoundException, SQLException {
-        String connectionString = "jdbc:mysql://" + dbHost + ":" + dbPort + "/" + dbName+"?autoReconnect=true&useSSL=false";
-
-        Class.forName("com.mysql.jdbc.Driver");
-
-        dbConnection = DriverManager.getConnection(connectionString, dbUser, dbPass);
+    public DataBaseHandler(){
+        createDbConnection();
+    }
+    private void createDbConnection() {
+        String jdbcURL = "jdbc:mysql://"+dbHost+":"+dbPort+"/"+dbName+"?useSSL=false&serverTimezone=UTC";
+        try {
+            dbConnection = DriverManager.getConnection(jdbcURL, dbUser, dbPass);
+            System.out.println("success connection");
+        }
+        catch (SQLException e) {
+            System.out.println("connection failed");
+            System.out.println(e.getSQLState()+e.getMessage());
+        }
+    }
+    private Connection getDbConnection(){
         return dbConnection;
     }
     public void addMark(String fullname,String group, Integer mark,String date) { //ALTER TABLE myschema.users AUTO_INCREMENT=0;
@@ -45,7 +52,7 @@ public class DataBaseHandler extends Configs{
             preparedStatement.setString(1, fullname);
             preparedStatement.setString(2, group);
             resultSet = preparedStatement.executeQuery();
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             Const.HAVE_ERROR = 1;
             e.printStackTrace();
         }
@@ -64,7 +71,7 @@ public class DataBaseHandler extends Configs{
             while (resultSet.next()){
                 in=in+",'"+resultSet.getInt(Const.USER_ID)+"'";
             }
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             Const.HAVE_ERROR = 1;
             e.printStackTrace();
         }
@@ -117,22 +124,18 @@ public class DataBaseHandler extends Configs{
                         " AND `" + Const.STUDENT_ID + "`= "
                         +allFromUserTable.getString("iduser")).executeQuery();
                 while (marksOfCurrentUser.next()){//заходим в его оценки
-                    System.out.println(marksOfCurrentUser.getInt("mark"));
                     String update = "UPDATE "+Const.STATISTICS_TABLE+
                             " SET `"+marksOfCurrentUser.getString("date")+"`="
                             + marksOfCurrentUser.getInt("mark") +" "+
                             "WHERE name='"+allFromUserTable.getString("fullname")+"'";
-                    System.out.println(update);
                     preparedStatement = getDbConnection().prepareStatement(update);
                     preparedStatement.executeUpdate();
                 }
-                System.out.println("///");
-
             }
             select = "SELECT * " + "FROM " + Const.STATISTICS_TABLE;
             preparedStatement = getDbConnection().prepareStatement(select);
             resultSet = preparedStatement.executeQuery();
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             Const.HAVE_ERROR = 1;
             e.printStackTrace();
         }
@@ -146,7 +149,7 @@ public class DataBaseHandler extends Configs{
                 preparedStatement = getDbConnection().prepareStatement("ALTER TABLE "+Const.STATISTICS_TABLE+" DROP COLUMN `"+i+"`");
                 preparedStatement.executeUpdate();
             }
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             Const.HAVE_ERROR = 1;
             e.printStackTrace();
         }
@@ -162,7 +165,7 @@ public class DataBaseHandler extends Configs{
             while (resultSet.next()){
                 namesInGroup.add(resultSet.getString(Const.USER_NAME));
             }
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return namesInGroup;
@@ -177,7 +180,7 @@ public class DataBaseHandler extends Configs{
             while (resultSet.next()){
                 groupsList.add(resultSet.getString("groups"));
             }
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return groupsList;
@@ -192,8 +195,8 @@ public class DataBaseHandler extends Configs{
             if(resultSet.getString("password").equals(password)){
                 return true;
             }
-        } catch (SQLException | ClassNotFoundException e) {
-            System.out.println("fuck");
+        } catch (SQLException e) {
+            System.out.println("check fail");
             return false;
         }
         return false;
@@ -208,7 +211,7 @@ public class DataBaseHandler extends Configs{
 
             resultSet.next();
             name = resultSet.getString("name");
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return name;
@@ -223,7 +226,7 @@ public class DataBaseHandler extends Configs{
 
             resultSet.next();
             name = resultSet.getString("fullname");
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
         }
@@ -239,7 +242,7 @@ public class DataBaseHandler extends Configs{
             userSet.next();
             sql = "SELECT * FROM "+Const.MARK_TABLE
                     +" WHERE idstudent = '"+userSet.getString("iduser")+"'";
-            preparedStatement = getDbConnection().prepareStatement(sql);
+            preparedStatement = getDbConnection().prepareStatement(sql,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
             ResultSet marksSet = preparedStatement.executeQuery();
 
             SortedSet<String> dates = new TreeSet<>();
@@ -278,7 +281,7 @@ public class DataBaseHandler extends Configs{
             }
             return workbook;
 
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
@@ -293,7 +296,7 @@ public class DataBaseHandler extends Configs{
 
             resultSet.next();
             name = resultSet.getString("job");
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return name;
@@ -309,7 +312,7 @@ public class DataBaseHandler extends Configs{
             preparedStatement.setString(1, fullname);
             preparedStatement.setString(2, group);
             preparedStatement.executeUpdate();
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             Const.HAVE_ERROR = 1;
             e.printStackTrace();
         }
@@ -328,7 +331,7 @@ public class DataBaseHandler extends Configs{
             preparedStatement.setString(4,Const.TEACHER_SUBJECT);
             preparedStatement.executeUpdate();
         }
-        catch (SQLException | ClassNotFoundException| NullPointerException e) {
+        catch (SQLException | NullPointerException e) {
             Const.HAVE_ERROR = 1;
             e.printStackTrace();
         }
@@ -344,8 +347,8 @@ public class DataBaseHandler extends Configs{
             if(resultSet.getString("password").equals(password)){
                 return true;
             }
-        } catch (SQLException | ClassNotFoundException e) {
-            System.out.println("fuck");
+        } catch (SQLException e) {
+            System.out.println("check failed");
             return false;
         }
         return false;

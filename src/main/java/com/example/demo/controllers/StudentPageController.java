@@ -25,10 +25,8 @@ public class StudentPageController implements Initializable {
     private ComboBox<String> info;
     @FXML
     protected void showAllMarks(){
-        System.out.println("1");
         DataBaseHandler baseHandler = new DataBaseHandler();
         Workbook workbook = baseHandler.getAllMarksInExcel(Const.STUDENT_NAME);
-        System.out.println("1");
         Path path = Paths.get("mymarks.xlsx");
         if(Files.exists(path)){
             File file =  new File(String.valueOf(path));
