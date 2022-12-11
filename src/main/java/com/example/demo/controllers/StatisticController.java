@@ -63,8 +63,14 @@ public class StatisticController implements Initializable {
 
                 for (int j = 0; j < columnNames.size(); j++) {
                     try {
-                        newRow.createCell(j)
-                                .setCellValue(statByCurrentSubject.getInt(columnNames.get(j)));
+                        if(statByCurrentSubject.getString(columnNames.get(j))==null){
+                            newRow.createCell(j)
+                                    .setCellValue("");
+                        }
+                        else {
+                            newRow.createCell(j)
+                                    .setCellValue(statByCurrentSubject.getInt(columnNames.get(j)));
+                        }
                     }
                     catch (SQLDataException|NumberFormatException e){
                         newRow.createCell(j)
