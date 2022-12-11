@@ -1,2 +1,5 @@
 /.idea/
 /demo.iml
+/target/
+/stat.xlsx
+/mymarks.xlsx
