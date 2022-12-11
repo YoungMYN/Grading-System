@@ -7,6 +7,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import javax.sound.sampled.*;
+import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -14,6 +16,12 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
 public class Helper {
+    public static int HAVE_ERROR = 0;
+    public static int ARE_TEACHER = 0;
+    public static String STUDENT_NAME = null;
+    public static String TEACHER_NAME = null;
+    public static String TEACHER_SUBJECT = null;
+
     public static void setScene(ActionEvent event,String path){
         Stage stage;
         Scene scene;
@@ -29,7 +37,7 @@ public class Helper {
         stage.show();
     }
     public static String md5Custom(String st) {
-        MessageDigest messageDigest = null;
+        MessageDigest messageDigest;
         byte[] digest = new byte[0];
 
         try {
@@ -38,18 +46,35 @@ public class Helper {
             messageDigest.update(st.getBytes());
             digest = messageDigest.digest();
         } catch (NoSuchAlgorithmException e) {
-            // тут можно обработать ошибку
-            // возникает она если в передаваемый алгоритм в getInstance(,,,) не существует
             e.printStackTrace();
         }
 
         BigInteger bigInt = new BigInteger(1, digest);
-        String md5Hex = bigInt.toString(16);
+        StringBuilder md5Hex = new StringBuilder(bigInt.toString(16));
 
         while( md5Hex.length() < 32 ){
-            md5Hex = "0" + md5Hex;
+            md5Hex.insert(0, "0");
         }
 
-        return md5Hex;
+        return md5Hex.toString();
+    }
+    public static void playSound(File sound){
+        AudioInputStream ais = null;
+        try {
+            ais = AudioSystem.getAudioInputStream(sound);
+        } catch (UnsupportedAudioFileException | IOException e) {
+            e.printStackTrace();
+        }
+        Clip clip = null;
+        try {
+            clip = AudioSystem.getClip();
+            clip.open(ais);
+        } catch (LineUnavailableException | IOException e) {
+            e.printStackTrace();
+        }
+        if(clip!=null) {
+            clip.setFramePosition(0);
+            clip.start();
+        }
     }
 }

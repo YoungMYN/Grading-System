@@ -11,7 +11,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 import java.awt.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -23,10 +22,11 @@ import java.util.ResourceBundle;
 public class StudentPageController implements Initializable {
     @FXML
     private ComboBox<String> info;
+
     @FXML
     protected void showAllMarks(){
         DataBaseHandler baseHandler = new DataBaseHandler();
-        Workbook workbook = baseHandler.getAllMarksInExcel(Const.STUDENT_NAME);
+        Workbook workbook = baseHandler.getAllMarksInExcel(Helper.STUDENT_NAME);
         Path path = Paths.get("mymarks.xlsx");
         if(Files.exists(path)){
             File file =  new File(String.valueOf(path));
@@ -40,21 +40,31 @@ public class StudentPageController implements Initializable {
             if (Desktop.isDesktopSupported()) {
                 desktop = Desktop.getDesktop();
             }
-            desktop.open(new File(String.valueOf(path)));
-
+            if (desktop != null) {
+                desktop.open(new File(String.valueOf(path)));
+            }
+            else {
+                System.out.println("Unable to connect to desktop");
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            if(e.getMessage().equals("mymarks.xlsx" +
+                    " (The process cannot access the file because it is being used by another process)")){
+                System.out.println("file is opening or already open");
+            }
+            else{
+                e.printStackTrace();
+            }
         }
 
     }
     @FXML
     protected void logout(ActionEvent event){
-        Const.STUDENT_NAME = null;
+        Helper.STUDENT_NAME = null;
         Helper.setScene(event,"/com/example/demo/StartPage.fxml");
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        info.setPromptText(Const.STUDENT_NAME);
+        info.setPromptText(Helper.STUDENT_NAME);
         info.getItems().add("logout");
     }
 }

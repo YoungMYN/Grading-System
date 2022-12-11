@@ -14,16 +14,11 @@ import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.ResourceBundle;
 import org.controlsfx.control.textfield.*;
 
-// удалить таблицы по группам оставить только данные из них в users перенести
-
 public class Controller implements Initializable {
+
     private static String previousGroup = null;
     private AutoCompletionBinding acb = null;
 
@@ -42,33 +37,28 @@ public class Controller implements Initializable {
     @FXML
     private ComboBox<Integer> marks;
 
-
     @FXML
     protected void onSaveButtonClick(ActionEvent event) {
-        //System.out.println(name.getText() + " получил сегодня " + marks.getSelectionModel().getSelectedItem());
         DataBaseHandler dataBaseHandler = new DataBaseHandler();
-        if(!dataBaseHandler.getNamesInGroup(groups.getSelectionModel().getSelectedItem()).contains(name.getText())){
-            Const.HAVE_ERROR = 1;
+
+        if(!dataBaseHandler.getNamesInGroup(groups.getSelectionModel().getSelectedItem())
+                .contains(name.getText())){
+            Helper.HAVE_ERROR = 1;
         }
 
-        if(Const.HAVE_ERROR==0) {
-            LocalDate now = LocalDate.now(ZoneId.of("Europe/Moscow"));
-            ;
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            String date = formatter.format(Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-
+        if(Helper.HAVE_ERROR==0) {
             if (absent.isSelected()) {
                 dataBaseHandler.addMark(name.getText(),
                         groups.getSelectionModel().getSelectedItem(),
-                        0, date);
+                        0);
             } else {
                 dataBaseHandler.addMark(name.getText(),
                         groups.getSelectionModel().getSelectedItem(),
-                        marks.getSelectionModel().getSelectedItem(), date);
+                        marks.getSelectionModel().getSelectedItem());
             }
         }
         File sound;
-        if(Const.HAVE_ERROR==0){
+        if(Helper.HAVE_ERROR==0){
             sound= new File("src\\main\\resources\\com\\example\\demo\\added.wav");
             previousGroup = groups.getSelectionModel().getSelectedItem();
             Helper.setScene(event,"/com/example/demo/AddingPage.fxml");
@@ -77,63 +67,46 @@ public class Controller implements Initializable {
         else {
             sound= new File("src\\main\\resources\\com\\example\\demo\\error.wav");
             errorWindow.setVisible(true);
-            Const.HAVE_ERROR=0;
+            Helper.HAVE_ERROR=0;
         }
-        playSound(sound);
+        Helper.playSound(sound);
     }
+
     @FXML
     protected void onAbsentButtonClick(){
         marks.setVisible(!marks.isVisible());
     }
+
     @FXML
     protected void onGroupSelected(){
-        if(acb!=null) acb.dispose();
         DataBaseHandler dataBaseHandler = new DataBaseHandler();
+        if(acb!=null) acb.dispose();
         acb = TextFields.bindAutoCompletion(name,
                 dataBaseHandler.getNamesInGroup(groups.getSelectionModel().getSelectedItem()));
-
-
     }
+
     @FXML
     protected void backAction(ActionEvent event){
         Helper.setScene(event,"/com/example/demo/AddOrCheck.fxml");
-
     }
     @FXML
     protected void logout(ActionEvent event){
         Helper.setScene(event,"/com/example/demo/StartPage.fxml");
     }
-    public static void playSound(File sound){
-        AudioInputStream ais = null;
-        try {
-            ais = AudioSystem.getAudioInputStream(sound);
-        } catch (UnsupportedAudioFileException | IOException e) {
-            e.printStackTrace();
-        }
-        Clip clip = null;
-        try {
-            clip = AudioSystem.getClip();
-            clip.open(ais);
-        } catch (LineUnavailableException | IOException e) {
-            e.printStackTrace();
-        }
-        clip.setFramePosition(0);
-        clip.start();
-    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        info.setPromptText(Const.TEACHER_NAME);
+        info.setPromptText(Helper.TEACHER_NAME);
         info.getItems().add("logout");
+
         DataBaseHandler handler = new DataBaseHandler();
         for(String i : handler.getGroupsList()){
             groups.getItems().add(i);
         }
+        for (int i = 2; i <= 5; i++) {
+            marks.getItems().add(i);
+        }
 
-        marks.getItems().add(2);
-        marks.getItems().add(3);
-        marks.getItems().add(4);
-        marks.getItems().add(5);
         if(previousGroup!=null){
             groups.getSelectionModel().select(previousGroup);
             onGroupSelected();

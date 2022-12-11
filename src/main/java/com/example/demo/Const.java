@@ -16,9 +16,4 @@ public class Const {
     public static final String STATISTICS_TABLE = "statistics";
     public static final String STATISTICS_NAME = "name";
     public static final String GROUPS_TABLE= "groups_list";
-    public static int HAVE_ERROR = 0;
-    public static int ARE_TEACHER = 0;
-    public static String STUDENT_NAME = null;
-    public static String TEACHER_NAME = null;
-    public static String TEACHER_SUBJECT = null;
 }

@@ -18,12 +18,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.ResourceBundle;
 
 
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -36,49 +34,33 @@ public class StatisticController implements Initializable {
     @FXML
     private ComboBox<String> statisticGroup;
 
-    //ResultSet sss = dataBaseHandler.getAllStudentsWithMarks(groups.getSelectionModel().getSelectedItem());
     @FXML
     protected void onGetExelButtonClick(){
         if(statisticGroup.getSelectionModel().getSelectedItem() == null){
-            Const.HAVE_ERROR =1;
+            Helper.HAVE_ERROR =1;
         }
-        File sound;
-        if(Const.HAVE_ERROR==0){
-            sound= new File("src\\main\\resources\\com\\example\\demo\\added.wav");
-            errorWindow.setVisible(false);
-        }
-        else {
-            sound= new File("src\\main\\resources\\com\\example\\demo\\error.wav");
-            errorWindow.setVisible(true);
-            Const.HAVE_ERROR=0;
-        }
-        Controller.playSound(sound);
-
-
-
         DataBaseHandler dataBaseHandler = new DataBaseHandler();
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet(statisticGroup.getSelectionModel().getSelectedItem());
-        ResultSet sss = dataBaseHandler.getAllStudentsWithMarksByCurrentSubject(statisticGroup.getSelectionModel().getSelectedItem());
-        
-        ArrayList<String> coloumnNames = new ArrayList<>();
+        ResultSet statByCurrentSubject = dataBaseHandler.
+                getAllStudentsWithMarksByCurrentSubject(statisticGroup.getSelectionModel().getSelectedItem());
+        ArrayList<String> columnNames = new ArrayList<>();
         try {
             Row subjectRow = sheet.createRow(0);
-            subjectRow.createCell(0).setCellValue(Const.TEACHER_SUBJECT);
-
+            subjectRow.createCell(0).setCellValue(Helper.TEACHER_SUBJECT);
             Row row = sheet.createRow(1);
-            ResultSetMetaData rsmd = sss.getMetaData();
-            for (int i = 2; i <= rsmd.getColumnCount(); i++) {
-                String name = rsmd.getColumnName(i);
-                coloumnNames.add(name);
+            ResultSetMetaData metaData = statByCurrentSubject.getMetaData();
+            for (int i = 2; i <= metaData.getColumnCount(); i++) {
+                String name = metaData.getColumnName(i);
+                columnNames.add(name);
                 row.createCell(i-2).setCellValue(name);
             }
             int i = 1;
-            while (sss.next()){
+            while (statByCurrentSubject.next()){
                 i= i+1;
                 Row newRow = sheet.createRow(i);
-                for (int j = 0; j < coloumnNames.size(); j++) {
-                    newRow.createCell(j).setCellValue(sss.getString(coloumnNames.get(j)));
+                for (int j = 0; j < columnNames.size(); j++) {
+                    newRow.createCell(j).setCellValue(statByCurrentSubject.getString(columnNames.get(j)));
                 }
             }
             Path path = Paths.get("stat.xlsx");
@@ -94,31 +76,49 @@ public class StatisticController implements Initializable {
                 desktop = Desktop.getDesktop();
             }
             try {
-                desktop.open(new File(String.valueOf(path)));
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
+                if(desktop!=null) desktop.open(new File(String.valueOf(path)));
+                else System.out.println("Unable to connect to desktop");
+            } catch (IOException e) {
+                Helper.HAVE_ERROR = 1;
+                e.printStackTrace();
             }
-
-        } catch (SQLException | IOException e) {
-            Const.HAVE_ERROR = 1;
+        } catch (SQLException e) {
+            Helper.HAVE_ERROR = 1;
             e.printStackTrace();
+        } catch (IOException e) {
+            if(e.getMessage().equals("stat.xlsx" +
+                    " (The process cannot access the file because it is being used by another process)")){
+                System.out.println("file is opening or already open");
+            }
+            else{
+                e.printStackTrace();
+            }
         }
-
+        File sound;
+        if(Helper.HAVE_ERROR==0){
+            sound= new File("src\\main\\resources\\com\\example\\demo\\added.wav");
+            errorWindow.setVisible(false);
+        }
+        else {
+            sound= new File("src\\main\\resources\\com\\example\\demo\\error.wav");
+            errorWindow.setVisible(true);
+            Helper.HAVE_ERROR=0;
+        }
+        Helper.playSound(sound);
     }
     @FXML
     protected void logout(ActionEvent event){
-        Const.TEACHER_SUBJECT = null;
+        Helper.TEACHER_SUBJECT = null;
         Helper.setScene(event,"/com/example/demo/StartPage.fxml");
     }
     @FXML
     protected void backAction(ActionEvent event){
         Helper.setScene(event,"/com/example/demo/AddOrCheck.fxml");
-
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        info.setPromptText(Const.TEACHER_NAME);
+        info.setPromptText(Helper.TEACHER_NAME);
         info.getItems().add("logout");
         DataBaseHandler handler = new DataBaseHandler();
         for(String i : handler.getGroupsList()){

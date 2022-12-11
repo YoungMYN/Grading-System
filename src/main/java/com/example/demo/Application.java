@@ -7,14 +7,11 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class Application extends javafx.application.Application {
-    private Scene scene;
     @Override
     public void start(Stage stage) throws IOException {
-        //FXMLLoader fxmlLoader = new FXMLLoader(Application.class.getResource("AddingPage.fxml"));
         FXMLLoader fxmlLoader = new FXMLLoader(Application.class.getResource("StartPage.fxml"));
-        scene = new Scene(fxmlLoader.load());
-        //stage.setTitle("Adding a mark");
-        stage.setTitle("Get statistic");
+        Scene scene = new Scene(fxmlLoader.load());
+        stage.setTitle("Grade system v1.0.1");
         stage.setScene(scene);
         stage.show();
     }

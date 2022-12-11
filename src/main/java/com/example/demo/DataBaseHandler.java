@@ -1,14 +1,17 @@
 package com.example.demo;
 
 
-import javafx.fxml.Initializable;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
+import java.util.Date;
 
 public class DataBaseHandler extends Configs {
     private Connection dbConnection;
@@ -30,14 +33,17 @@ public class DataBaseHandler extends Configs {
     private Connection getDbConnection(){
         return dbConnection;
     }
-    public void addMark(String fullname,String group, Integer mark,String date) { //ALTER TABLE myschema.users AUTO_INCREMENT=0;
+    public void addMark(String fullname,String group, Integer mark) { //ALTER TABLE myschema.users AUTO_INCREMENT=0;
+        LocalDate now = LocalDate.now(ZoneId.of("Europe/Moscow"));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        String date = formatter.format(Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant()));
         try {
             if (mark == null){
                 throw new SQLException();
             }
             insertMark(fullname, group, mark, date);
         } catch (SQLException e) {
-            Const.HAVE_ERROR = 1;
+            Helper.HAVE_ERROR = 1;
             e.printStackTrace();
         }
 
@@ -53,7 +59,7 @@ public class DataBaseHandler extends Configs {
             preparedStatement.setString(2, group);
             resultSet = preparedStatement.executeQuery();
         } catch (SQLException e) {
-            Const.HAVE_ERROR = 1;
+            Helper.HAVE_ERROR = 1;
             e.printStackTrace();
         }
         return resultSet;
@@ -72,13 +78,13 @@ public class DataBaseHandler extends Configs {
                 in=in+",'"+resultSet.getInt(Const.USER_ID)+"'";
             }
         } catch (SQLException e) {
-            Const.HAVE_ERROR = 1;
+            Helper.HAVE_ERROR = 1;
             e.printStackTrace();
         }
 
         select = "SELECT * " + "FROM " + Const.MARK_TABLE+
                 " WHERE `" + Const.STUDENT_ID + "` IN ("+in+")"+
-                " AND `"+Const.STUDENT_MARK_SUBJECT +"`='"+Const.TEACHER_SUBJECT+"'";
+                " AND `"+Const.STUDENT_MARK_SUBJECT +"`='"+Helper.TEACHER_SUBJECT+"'";
         ResultSet resultSet = null;
         SortedSet<String> sortedSet = null;
         try {
@@ -118,7 +124,7 @@ public class DataBaseHandler extends Configs {
             ResultSet allFromUserTable =  preparedStatement.executeQuery();
             select = "SELECT * " + "FROM " + Const.MARK_TABLE+
                     " WHERE `" + Const.STUDENT_ID + "` IN ("+in+")"+
-                    " AND `"+Const.STUDENT_MARK_SUBJECT +"`='"+Const.TEACHER_SUBJECT+"'";
+                    " AND `"+Const.STUDENT_MARK_SUBJECT +"`='"+Helper.TEACHER_SUBJECT+"'";
             while (allFromUserTable.next()){//заходим в пользователя
                 ResultSet marksOfCurrentUser = getDbConnection().prepareStatement(select+
                         " AND `" + Const.STUDENT_ID + "`= "
@@ -136,7 +142,7 @@ public class DataBaseHandler extends Configs {
             preparedStatement = getDbConnection().prepareStatement(select);
             resultSet = preparedStatement.executeQuery();
         } catch (SQLException e) {
-            Const.HAVE_ERROR = 1;
+            Helper.HAVE_ERROR = 1;
             e.printStackTrace();
         }
         String delete = "DELETE FROM "+Const.STATISTICS_TABLE;
@@ -150,7 +156,7 @@ public class DataBaseHandler extends Configs {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
-            Const.HAVE_ERROR = 1;
+            Helper.HAVE_ERROR = 1;
             e.printStackTrace();
         }
         return resultSet;
@@ -252,9 +258,9 @@ public class DataBaseHandler extends Configs {
                 subjects.add(marksSet.getString("subject"));
             }
             marksSet.beforeFirst();
-            Sheet sheet = workbook.createSheet(Const.STUDENT_NAME);
+            Sheet sheet = workbook.createSheet(Helper.STUDENT_NAME);
             Row nameRow = sheet.createRow(0);
-            nameRow.createCell(0).setCellValue(Const.STUDENT_NAME);
+            nameRow.createCell(0).setCellValue(Helper.STUDENT_NAME);
             Row infoRow = sheet.createRow(1);
             infoRow.createCell(0).setCellValue("subject");
             int j = 1;
@@ -313,7 +319,7 @@ public class DataBaseHandler extends Configs {
             preparedStatement.setString(2, group);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            Const.HAVE_ERROR = 1;
+            Helper.HAVE_ERROR = 1;
             e.printStackTrace();
         }
     }
@@ -328,11 +334,11 @@ public class DataBaseHandler extends Configs {
             preparedStatement.setInt(1, rs.getInt(Const.USER_ID));
             preparedStatement.setInt(2, mark);
             preparedStatement.setDate(3, java.sql.Date.valueOf(date));
-            preparedStatement.setString(4,Const.TEACHER_SUBJECT);
+            preparedStatement.setString(4,Helper.TEACHER_SUBJECT);
             preparedStatement.executeUpdate();
         }
         catch (SQLException | NullPointerException e) {
-            Const.HAVE_ERROR = 1;
+            Helper.HAVE_ERROR = 1;
             e.printStackTrace();
         }
     }
