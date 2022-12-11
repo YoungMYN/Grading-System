@@ -1,6 +1,6 @@
 package com.example.demo.controllers;
 
-import com.example.demo.Const;
+
 import com.example.demo.DataBaseHandler;
 import com.example.demo.Helper;
 import javafx.event.ActionEvent;
@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLDataException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -59,8 +60,16 @@ public class StatisticController implements Initializable {
             while (statByCurrentSubject.next()){
                 i= i+1;
                 Row newRow = sheet.createRow(i);
+
                 for (int j = 0; j < columnNames.size(); j++) {
-                    newRow.createCell(j).setCellValue(statByCurrentSubject.getString(columnNames.get(j)));
+                    try {
+                        newRow.createCell(j)
+                                .setCellValue(statByCurrentSubject.getInt(columnNames.get(j)));
+                    }
+                    catch (SQLDataException|NumberFormatException e){
+                        newRow.createCell(j)
+                                .setCellValue(statByCurrentSubject.getString(columnNames.get(j)));
+                    }
                 }
             }
             Path path = Paths.get("stat.xlsx");
