@@ -22,8 +22,6 @@ public class Controller implements Initializable {
     @FXML
     private ComboBox<String> info;
     @FXML
-    private ComboBox<String> statisticGroup;
-    @FXML
     private RadioButton absent;
     @FXML
     private TextField errorWindow;
