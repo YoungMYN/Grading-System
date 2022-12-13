@@ -19,23 +19,26 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
+import static com.example.demo.Helper.*;
+
 public class StudentPageController implements Initializable {
     @FXML
     private ComboBox<String> info;
 
+    // opens an Excel file with all student's marks by all subjects
     @FXML
     protected void showAllMarks(){
         DataBaseHandler baseHandler = new DataBaseHandler();
-        Workbook workbook = baseHandler.getAllMarksInExcel(Helper.STUDENT_NAME);
+        Workbook allMarksWorkbook = baseHandler.getAllMarksInExcel(STUDENT_NAME);
         Path path = Paths.get("mymarks.xlsx");
         if(Files.exists(path)){
-            File file =  new File(String.valueOf(path));
-            file.delete();
+            File marksFile =  new File(String.valueOf(path));
+            marksFile.delete();
         }
         try {
-            FileOutputStream fileOutputStream = new FileOutputStream("mymarks.xlsx");
-            workbook.write(fileOutputStream);
-            fileOutputStream.close();
+            FileOutputStream fos = new FileOutputStream("mymarks.xlsx");
+            allMarksWorkbook.write(fos);
+            fos.close();
             Desktop desktop = null;
             if (Desktop.isDesktopSupported()) {
                 desktop = Desktop.getDesktop();
@@ -59,12 +62,12 @@ public class StudentPageController implements Initializable {
     }
     @FXML
     protected void logout(ActionEvent event){
-        Helper.STUDENT_NAME = null;
-        Helper.setScene(event,"/com/example/demo/StartPage.fxml");
+        STUDENT_NAME = null;
+        setScene(event,"/com/example/demo/StartPage.fxml");
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        info.setPromptText(Helper.STUDENT_NAME);
+        info.setPromptText(STUDENT_NAME);
         info.getItems().add("logout");
     }
 }

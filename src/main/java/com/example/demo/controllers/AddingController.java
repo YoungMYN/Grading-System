@@ -14,10 +14,10 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import org.controlsfx.control.textfield.*;
 
-public class Controller implements Initializable {
+public class AddingController implements Initializable {
 
     private static String previousGroup = null;
-    private AutoCompletionBinding acb = null;
+    private AutoCompletionBinding autocomplete = null;
 
     @FXML
     private ComboBox<String> info;
@@ -75,8 +75,8 @@ public class Controller implements Initializable {
     @FXML
     protected void onGroupSelected(){
         DataBaseHandler dataBaseHandler = new DataBaseHandler();
-        if(acb!=null) acb.dispose();
-        acb = TextFields.bindAutoCompletion(name,
+        if(autocomplete!=null) autocomplete.dispose();
+        autocomplete = TextFields.bindAutoCompletion(name,
                 dataBaseHandler.getNamesInGroup(groups.getSelectionModel().getSelectedItem()));
     }
 

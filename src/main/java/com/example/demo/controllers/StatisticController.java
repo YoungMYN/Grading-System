@@ -40,73 +40,72 @@ public class StatisticController implements Initializable {
         if(statisticGroup.getSelectionModel().getSelectedItem() == null){
             Helper.HAVE_ERROR =1;
         }
-        DataBaseHandler dataBaseHandler = new DataBaseHandler();
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet(statisticGroup.getSelectionModel().getSelectedItem());
-        ResultSet statByCurrentSubject = dataBaseHandler.
-                getAllStudentsWithMarksByCurrentSubject(statisticGroup.getSelectionModel().getSelectedItem());
-        ArrayList<String> columnNames = new ArrayList<>();
-        try {
-            Row subjectRow = sheet.createRow(0);
-            subjectRow.createCell(0).setCellValue(Helper.TEACHER_SUBJECT);
-            Row row = sheet.createRow(1);
-            ResultSetMetaData metaData = statByCurrentSubject.getMetaData();
-            for (int i = 2; i <= metaData.getColumnCount(); i++) {
-                String name = metaData.getColumnName(i);
-                columnNames.add(name);
-                row.createCell(i-2).setCellValue(name);
-            }
-            int i = 1;
-            while (statByCurrentSubject.next()){
-                i= i+1;
-                Row newRow = sheet.createRow(i);
-
-                for (int j = 0; j < columnNames.size(); j++) {
-                    try {
-                        if(statByCurrentSubject.getString(columnNames.get(j))==null){
-                            newRow.createCell(j)
-                                    .setCellValue("");
+        else {
+            DataBaseHandler dataBaseHandler = new DataBaseHandler();
+            Workbook statisticsWorkbook = new XSSFWorkbook();
+            Sheet sheet = statisticsWorkbook.createSheet(statisticGroup.getSelectionModel().getSelectedItem());
+            ResultSet statByCurrentSubject = dataBaseHandler.
+                    getAllStudentsWithMarksByCurrentSubject(statisticGroup.getSelectionModel().getSelectedItem());
+            ArrayList<String> columnNames = new ArrayList<>();
+            try {
+                Row subjectRow = sheet.createRow(0);
+                subjectRow.createCell(0).setCellValue(Helper.TEACHER_SUBJECT);
+                Row datesRow = sheet.createRow(1);
+                ResultSetMetaData metaData = statByCurrentSubject.getMetaData();
+                for (int i = 2; i <= metaData.getColumnCount(); i++) {
+                    String nameOfColumn = metaData.getColumnName(i);
+                    columnNames.add(nameOfColumn);
+                    datesRow.createCell(i - 2).setCellValue(nameOfColumn);
+                }
+                int i = 1;
+                while (statByCurrentSubject.next()) {
+                    i++;
+                    Row studentMarksRow = sheet.createRow(i);
+                    for (int j = 0; j < columnNames.size(); j++) {
+                        try {
+                            if (statByCurrentSubject.getString(columnNames.get(j)) == null) {
+                                studentMarksRow.createCell(j)
+                                        .setCellValue("");
+                            } else {
+                                studentMarksRow.createCell(j)
+                                        .setCellValue(statByCurrentSubject.getInt(columnNames.get(j)));
+                            }
+                        } catch (SQLDataException | NumberFormatException e) {
+                            studentMarksRow.createCell(j)
+                                    .setCellValue(statByCurrentSubject.getString(columnNames.get(j)));
                         }
-                        else {
-                            newRow.createCell(j)
-                                    .setCellValue(statByCurrentSubject.getInt(columnNames.get(j)));
-                        }
-                    }
-                    catch (SQLDataException|NumberFormatException e){
-                        newRow.createCell(j)
-                                .setCellValue(statByCurrentSubject.getString(columnNames.get(j)));
                     }
                 }
-            }
-            Path path = Paths.get("stat.xlsx");
-            if(Files.exists(path)){
-                File file =  new File(String.valueOf(path));
-                file.delete();
-            }
-            FileOutputStream fileOutputStream = new FileOutputStream("stat.xlsx");
-            workbook.write(fileOutputStream);
-            fileOutputStream.close();
-            Desktop desktop = null;
-            if (Desktop.isDesktopSupported()) {
-                desktop = Desktop.getDesktop();
-            }
-            try {
-                if(desktop!=null) desktop.open(new File(String.valueOf(path)));
-                else System.out.println("Unable to connect to desktop");
-            } catch (IOException e) {
+                Path path = Paths.get("stat.xlsx");
+                if (Files.exists(path)) {
+                    File statisticsFile = new File(String.valueOf(path));
+                    statisticsFile.delete();
+                }
+                FileOutputStream fos = new FileOutputStream("stat.xlsx");
+                statisticsWorkbook.write(fos);
+                Desktop desktop = null;
+                if (Desktop.isDesktopSupported()) {
+                    desktop = Desktop.getDesktop();
+                }
+                try {
+                    if (desktop != null) desktop.open(new File(String.valueOf(path)));
+                    else System.out.println("Unable to connect to desktop");
+                } catch (IOException e) {
+                    Helper.HAVE_ERROR = 1;
+                    e.printStackTrace();
+                }
+                fos.close();
+                statisticsWorkbook.close();
+            } catch (SQLException e) {
                 Helper.HAVE_ERROR = 1;
                 e.printStackTrace();
-            }
-        } catch (SQLException e) {
-            Helper.HAVE_ERROR = 1;
-            e.printStackTrace();
-        } catch (IOException e) {
-            if(e.getMessage().equals("stat.xlsx" +
-                    " (The process cannot access the file because it is being used by another process)")){
-                System.out.println("file is opening or already open");
-            }
-            else{
-                e.printStackTrace();
+            } catch (IOException e) {
+                if (e.getMessage().equals("stat.xlsx" +
+                        " (The process cannot access the file because it is being used by another process)")) {
+                    System.out.println("file is opening or already open");
+                } else {
+                    e.printStackTrace();
+                }
             }
         }
         File sound;
@@ -126,6 +125,7 @@ public class StatisticController implements Initializable {
         Helper.TEACHER_SUBJECT = null;
         Helper.setScene(event,"/com/example/demo/StartPage.fxml");
     }
+    //moves user to previous page
     @FXML
     protected void backAction(ActionEvent event){
         Helper.setScene(event,"/com/example/demo/AddOrCheck.fxml");

@@ -13,6 +13,9 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.Date;
 
+import static com.example.demo.Const.*;
+import static com.example.demo.Helper.*;
+
 public class DataBaseHandler extends Configs {
     private Connection dbConnection;
 
@@ -34,8 +37,8 @@ public class DataBaseHandler extends Configs {
         return dbConnection;
     }
     public void addMark(String fullname,String group, Integer mark) { //ALTER TABLE myschema.users AUTO_INCREMENT=0;
-        LocalDate now = LocalDate.now(ZoneId.of(Const.CURRENT_TIMEZONE));
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        LocalDate now = LocalDate.now(ZoneId.of(CURRENT_TIMEZONE));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd",new Locale("ru"));
         String date = formatter.format(Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant()));
         try {
             if (mark == null){
@@ -43,14 +46,14 @@ public class DataBaseHandler extends Configs {
             }
             insertMark(fullname, group, mark, date);
         } catch (SQLException e) {
-            Helper.HAVE_ERROR = 1;
+            HAVE_ERROR = 1;
             System.out.println("failed");
             e.printStackTrace();
         }
     }
     private ResultSet getStudent (String fullname, String group){
-        String select = "SELECT * " + "FROM " + Const.USER_TABLE + " WHERE `" + Const.USER_NAME + "`=? "
-                + "AND `" + Const.USER_GROUP + "`=?";
+        String select = "SELECT * " + "FROM " + USER_TABLE + " WHERE `" + USER_NAME + "`=? "
+                + "AND `" + USER_GROUP + "`=?";
         ResultSet resultSet = null;
         try {
             PreparedStatement preparedStatement = getDbConnection().prepareStatement(select);
@@ -58,30 +61,30 @@ public class DataBaseHandler extends Configs {
             preparedStatement.setString(2, group);
             resultSet = preparedStatement.executeQuery();
         } catch (SQLException e) {
-            Helper.HAVE_ERROR = 1;
+            HAVE_ERROR = 1;
             e.printStackTrace();
         }
         return resultSet;
     }
     public ResultSet getAllStudentsWithMarksByCurrentSubject (String group){
-        String select = "SELECT * " + "FROM " + Const.USER_TABLE+
-                " WHERE `" + Const.USER_GROUP + "`= "+"'"+group+"'";
+        String select = "SELECT * " + "FROM " + USER_TABLE+
+                " WHERE `" + USER_GROUP + "`= "+"'"+group+"'";
         StringBuilder in = new StringBuilder();
         try {
             ResultSet resultSet = getRSFromString(select);
             resultSet.next();
-            in.append("'").append(resultSet.getInt(Const.USER_ID)).append("'");
+            in.append("'").append(resultSet.getInt(USER_ID)).append("'");
             while (resultSet.next()){
-                in.append(",'").append(resultSet.getInt(Const.USER_ID)).append("'");
+                in.append(",'").append(resultSet.getInt(USER_ID)).append("'");
             }
         } catch (SQLException e) {
-            Helper.HAVE_ERROR = 1;
+            HAVE_ERROR = 1;
             e.printStackTrace();
         }
 
-        select = "SELECT * " + "FROM " + Const.MARK_TABLE+
-                " WHERE `" + Const.STUDENT_ID + "` IN ("+in+")"+
-                " AND `"+Const.STUDENT_MARK_SUBJECT +"`='"+Helper.TEACHER_SUBJECT+"'";
+        select = "SELECT * " + "FROM " + MARK_TABLE+
+                " WHERE `" + STUDENT_ID + "` IN ("+in+")"+
+                " AND `"+ STUDENT_MARK_SUBJECT +"`='"+ TEACHER_SUBJECT+"'";
         ResultSet resultSet = null;
         SortedSet<String> sortedSet = new TreeSet<>();
         try {
@@ -97,11 +100,11 @@ public class DataBaseHandler extends Configs {
                 preparedStatement = getDbConnection().prepareStatement(addColumn);
                 preparedStatement.executeUpdate();
             }
-            select = "SELECT * " + "FROM " + Const.USER_TABLE+
-                    " WHERE `" + Const.USER_GROUP + "`= "+"'"+group+"'";
+            select = "SELECT * " + "FROM " + USER_TABLE+
+                    " WHERE `" + USER_GROUP + "`= "+"'"+group+"'";
             resultSet = getRSFromString(select);
             while (resultSet.next()){
-                String insert = "INSERT INTO " + Const.STATISTICS_TABLE + " (" + "`" + Const.STATISTICS_NAME + "`)"+
+                String insert = "INSERT INTO " + STATISTICS_TABLE + " (" + "`" + STATISTICS_NAME + "`)"+
                         "VALUES (?)";
                 preparedStatement = getDbConnection().prepareStatement(insert);
                 preparedStatement.setString(1, resultSet.getString("fullname"));
@@ -110,15 +113,15 @@ public class DataBaseHandler extends Configs {
             //селект = все из юзеров, где группа равна выбранной
             preparedStatement = getDbConnection().prepareStatement(select);
             ResultSet allFromUserTable =  preparedStatement.executeQuery();
-            select = "SELECT * " + "FROM " + Const.MARK_TABLE+
-                    " WHERE `" + Const.STUDENT_ID + "` IN ("+in+")"+
-                    " AND `"+Const.STUDENT_MARK_SUBJECT +"`='"+Helper.TEACHER_SUBJECT+"'";
+            select = "SELECT * " + "FROM " + MARK_TABLE+
+                    " WHERE `" + STUDENT_ID + "` IN ("+in+")"+
+                    " AND `"+ STUDENT_MARK_SUBJECT +"`='"+ TEACHER_SUBJECT+"'";
             while (allFromUserTable.next()){//заходим в пользователя
                 ResultSet marksOfCurrentUser = getRSFromString(select+
-                        " AND `" + Const.STUDENT_ID + "`= "
+                        " AND `" + STUDENT_ID + "`= "
                         +allFromUserTable.getString("iduser"));
                 while (marksOfCurrentUser.next()){//заходим в его оценки
-                    String update = "UPDATE "+Const.STATISTICS_TABLE+
+                    String update = "UPDATE "+ STATISTICS_TABLE+
                             " SET `"+marksOfCurrentUser.getString("date")+"`="
                             + marksOfCurrentUser.getInt("mark") +" "+
                             "WHERE name='"+allFromUserTable.getString("fullname")+"'";
@@ -126,45 +129,48 @@ public class DataBaseHandler extends Configs {
                     preparedStatement.executeUpdate();
                 }
             }
-            select = "SELECT * " + "FROM " + Const.STATISTICS_TABLE;
+            select = "SELECT * " + "FROM " + STATISTICS_TABLE;
             resultSet = getRSFromString(select);
         } catch (SQLException e) {
-            Helper.HAVE_ERROR = 1;
+            HAVE_ERROR = 1;
             e.printStackTrace();
         }
-        String delete = "DELETE FROM "+Const.STATISTICS_TABLE;
+        //deleting data from sql table after saving result in resultSet for next iteration
+        String delete = "DELETE FROM "+ STATISTICS_TABLE;
         try {
             PreparedStatement preparedStatement = getDbConnection().prepareStatement(delete);
             preparedStatement.executeUpdate();
-            preparedStatement = getDbConnection().prepareStatement("ALTER TABLE "+Const.STATISTICS_TABLE+" DROP COLUMN `name`");
+            preparedStatement = getDbConnection().prepareStatement("ALTER TABLE "+ STATISTICS_TABLE+" DROP COLUMN `name`");
             preparedStatement.executeUpdate();
             for(String i : sortedSet){
-                preparedStatement = getDbConnection().prepareStatement("ALTER TABLE "+Const.STATISTICS_TABLE+" DROP COLUMN `"+i+"`");
+                preparedStatement = getDbConnection().prepareStatement("ALTER TABLE "+ STATISTICS_TABLE+" DROP COLUMN `"+i+"`");
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
-            Helper.HAVE_ERROR = 1;
+            HAVE_ERROR = 1;
             e.printStackTrace();
         }
         return resultSet;
     }
+    //returns list of names in selected group
     public ArrayList<String> getNamesInGroup(String group){
         ArrayList<String> namesInGroup = new ArrayList<>();
-        String sqlNamesInGroup = "SELECT * FROM `"+Const.USER_TABLE
-                +"` WHERE `"+Const.USER_GROUP+"` = '"+group+"'";
+        String sqlNamesInGroup = "SELECT * FROM `"+ USER_TABLE
+                +"` WHERE `"+ USER_GROUP+"` = '"+group+"'";
         try {
             ResultSet resultSet = getRSFromString(sqlNamesInGroup);
             while (resultSet.next()){
-                namesInGroup.add(resultSet.getString(Const.USER_NAME));
+                namesInGroup.add(resultSet.getString(USER_NAME));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return namesInGroup;
     }
+    //returns set of strings (a list of all existing study groups)
     public HashSet<String> getGroupsList(){
         HashSet<String> groupsList = new HashSet<>();
-        String select = "SELECT * FROM "+ Const.GROUPS_TABLE;
+        String select = "SELECT * FROM "+ GROUPS_TABLE;
         try {
             ResultSet resultSet = getRSFromString(select);
             while (resultSet.next()){
@@ -175,8 +181,10 @@ public class DataBaseHandler extends Configs {
         }
         return groupsList;
     }
+    // authorization boolean function for teachers
     public boolean checkTeacher(String email,String password){
-        String selectTeacher = "SELECT * FROM "+Const.TEACHERS_TABLE+" WHERE email = '"+email+"'";
+        password = md5Custom(password);
+        String selectTeacher = "SELECT * FROM "+ TEACHERS_TABLE+" WHERE email = '"+email+"'";
         try {
             ResultSet teacher = getRSFromString(selectTeacher);
             if(teacher==null) return false;
@@ -191,7 +199,7 @@ public class DataBaseHandler extends Configs {
         return false;
     }
     public String getTeacherName(String email){
-        String sql = "SELECT * FROM "+Const.TEACHERS_TABLE+" WHERE email = '"+email+"'";
+        String sql = "SELECT * FROM "+ TEACHERS_TABLE+" WHERE email = '"+email+"'";
         String name = null;
         try {
             ResultSet resultSet = getRSFromString(sql);
@@ -204,7 +212,7 @@ public class DataBaseHandler extends Configs {
         return name;
     }
     public String getStudentName(String email){
-        String sql = "SELECT * FROM "+Const.USER_TABLE+" WHERE email = '"+email+"'";
+        String sql = "SELECT * FROM "+ USER_TABLE+" WHERE email = '"+email+"'";
         String name = null;
         try {
             ResultSet resultSet = getRSFromString(sql);
@@ -217,11 +225,11 @@ public class DataBaseHandler extends Configs {
     }
     public Workbook getAllMarksInExcel(String fullname){
         Workbook workbook = new XSSFWorkbook();
-        String sql = "SELECT * FROM "+Const.USER_TABLE+" WHERE fullname = '"+fullname+"'";
+        String sql = "SELECT * FROM "+ USER_TABLE+" WHERE fullname = '"+fullname+"'";
         try {
             ResultSet userSet = getRSFromString(sql);
             userSet.next();
-            sql = "SELECT * FROM "+Const.MARK_TABLE
+            sql = "SELECT * FROM "+ MARK_TABLE
                     +" WHERE idstudent = '"+userSet.getString("iduser")+"'";
             PreparedStatement preparedStatement = getDbConnection()
                     .prepareStatement(sql,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
@@ -233,9 +241,9 @@ public class DataBaseHandler extends Configs {
                 dates.add(marksSet.getString("date"));
             }
             marksSet.beforeFirst();
-            Sheet sheet = workbook.createSheet(Helper.STUDENT_NAME);
+            Sheet sheet = workbook.createSheet(STUDENT_NAME);
             Row nameRow = sheet.createRow(0);
-            nameRow.createCell(0).setCellValue(Helper.STUDENT_NAME);
+            nameRow.createCell(0).setCellValue(STUDENT_NAME);
             Row infoRow = sheet.createRow(1);
             infoRow.createCell(0).setCellValue("subject");
             int j = 1;
@@ -270,7 +278,7 @@ public class DataBaseHandler extends Configs {
     }
     private TreeSet<String> getAllSubjects(){
         TreeSet<String> subjects= new TreeSet<>();
-        String select = "SELECT * FROM "+Const.TEACHERS_TABLE;
+        String select = "SELECT * FROM "+ TEACHERS_TABLE;
         try {
             ResultSet allSubjects = getRSFromString(select);
             while (allSubjects.next()){
@@ -282,7 +290,7 @@ public class DataBaseHandler extends Configs {
         return subjects;
     }
     public String getTeacherSubject(String email){
-        String sql = "SELECT * FROM "+Const.TEACHERS_TABLE+" WHERE email = '"+email+"'";
+        String sql = "SELECT * FROM "+ TEACHERS_TABLE+" WHERE email = '"+email+"'";
         String name = null;
         try {
             ResultSet resultSet = getRSFromString(sql);
@@ -296,30 +304,33 @@ public class DataBaseHandler extends Configs {
 
     private void insertMark (String fullname, String group, Integer mark, String date){
         try {
-            String insert = "INSERT INTO " + Const.MARK_TABLE + " (" + "`" + Const.STUDENT_ID + "`" + "," + "`" + Const.STUDENT_MARK +
-                    "`"+ "," + "`" + Const.STUDENT_MARK_DATE +
-                    "`,`"+Const.STUDENT_MARK_SUBJECT+"`"+ ") VALUES (?,?,?,?)";
+            String insert = "INSERT INTO " + MARK_TABLE + " (" + "`" + STUDENT_ID + "`" + "," + "`" + STUDENT_MARK +
+                    "`"+ "," + "`" + STUDENT_MARK_DATE +
+                    "`,`"+ STUDENT_MARK_SUBJECT+"`"+ ") VALUES (?,?,?,?)";
             ResultSet student = getStudent(fullname, group);
             student.next();
             PreparedStatement preparedStatement = getDbConnection().prepareStatement(insert);
-            preparedStatement.setInt(1, student.getInt(Const.USER_ID));
+            preparedStatement.setInt(1, student.getInt(USER_ID));
             preparedStatement.setInt(2, mark);
             preparedStatement.setDate(3, java.sql.Date.valueOf(date));
-            preparedStatement.setString(4,Helper.TEACHER_SUBJECT);
+            preparedStatement.setString(4, TEACHER_SUBJECT);
             preparedStatement.executeUpdate();
         }
         catch (SQLException | NullPointerException e) {
-            Helper.HAVE_ERROR = 1;
+            HAVE_ERROR = 1;
             e.printStackTrace();
         }
     }
-
+    //authorization boolean function for students
     public boolean checkStudent(String email, String password) {
-        String sql = "SELECT * FROM "+Const.USER_TABLE+" WHERE email = '"+email+"'";
+        password = md5Custom(password);
+        String sql = "SELECT * FROM "+ USER_TABLE+" WHERE email = '"+email+"'";
         try {
             ResultSet resultSet = getRSFromString(sql);
             if(resultSet==null) return false;
             resultSet.next();
+            System.out.println(resultSet.getString("password"));
+            System.out.println(password);
             if(resultSet.getString("password").equals(password)){
                 return true;
             }
