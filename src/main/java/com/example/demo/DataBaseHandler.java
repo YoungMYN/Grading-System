@@ -133,7 +133,11 @@ public class DataBaseHandler{
                     preparedStatement = getDbConnection().prepareStatement(update);
                     preparedStatement.executeUpdate();
                 }
+                try {  marksOfCurrentUser.close(); } catch (Exception ignored) {}
             }
+            try {
+                preparedStatement.close();
+                allFromUserTable.close();} catch (Exception ignored) {}
             select = "SELECT * " + "FROM " + STATISTICS_TABLE;
             resultSet = getRSFromString(select);
         } catch (SQLException e) {
@@ -151,6 +155,7 @@ public class DataBaseHandler{
                 preparedStatement = getDbConnection().prepareStatement("ALTER TABLE "+ STATISTICS_TABLE+" DROP COLUMN `"+i+"`");
                 preparedStatement.executeUpdate();
             }
+            try { preparedStatement.close(); } catch (Exception ignored) {}
         } catch (SQLException e) {
             HAVE_ERROR = 1;
             e.printStackTrace();
@@ -167,6 +172,7 @@ public class DataBaseHandler{
             while (resultSet.next()){
                 namesInGroup.add(resultSet.getString(USER_NAME));
             }
+            try { resultSet.close(); } catch (Exception ignored) {}
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -181,6 +187,7 @@ public class DataBaseHandler{
             while (resultSet.next()){
                 groupsList.add(resultSet.getString("groups"));
             }
+            try { resultSet.close(); } catch (Exception ignored) {}
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -192,10 +199,12 @@ public class DataBaseHandler{
         try {
             ResultSet teacher = getRSFromString(selectTeacher);
             if(teacher==null) return false;
-            teacher.next();
+            else teacher.next();
+
             if(teacher.getString("password").equals(md5Custom(password))){
                 return true;
             }
+            try { teacher.close(); } catch (Exception ignored) {}
         } catch (SQLException e) {
             System.out.println("check fail");
             return false;
@@ -207,9 +216,11 @@ public class DataBaseHandler{
         String name = null;
         try {
             ResultSet resultSet = getRSFromString(sql);
-
-            resultSet.next();
-            name = resultSet.getString("name");
+            if(resultSet!=null){
+                resultSet.next();
+                name = resultSet.getString("name");
+            }
+            try {if(resultSet!=null) resultSet.close(); } catch (Exception ignored) {}
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -220,8 +231,11 @@ public class DataBaseHandler{
         String name = null;
         try {
             ResultSet resultSet = getRSFromString(sql);
-            resultSet.next();
-            name = resultSet.getString("fullname");
+            if(resultSet!=null) {
+                resultSet.next();
+                name = resultSet.getString("fullname");
+            }
+            try {if(resultSet!=null) resultSet.close(); } catch (Exception ignored) {}
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -232,9 +246,11 @@ public class DataBaseHandler{
         String sql = "SELECT * FROM "+ USER_TABLE+" WHERE fullname = '"+fullname+"'";
         try {
             ResultSet userSet = getRSFromString(sql);
-            userSet.next();
-            sql = "SELECT * FROM "+ MARK_TABLE
-                    +" WHERE idstudent = '"+userSet.getString("iduser")+"'";
+            if(userSet!=null) {
+                userSet.next();
+                sql = "SELECT * FROM " + MARK_TABLE
+                        + " WHERE idstudent = '" + userSet.getString("iduser") + "'";
+            }
             PreparedStatement preparedStatement = getDbConnection()
                     .prepareStatement(sql,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
             ResultSet marksSet = preparedStatement.executeQuery();
@@ -272,6 +288,12 @@ public class DataBaseHandler{
                 }
                 rowNum++;
             }
+            try {
+                if(userSet!=null) userSet.close();
+                marksSet.close();
+                preparedStatement.close();
+            } catch (Exception ignored) {}
+
             return workbook;
 
         } catch (SQLException e) {
@@ -288,6 +310,7 @@ public class DataBaseHandler{
             while (allSubjects.next()){
                 subjects.add(allSubjects.getString("job"));
             }
+            try {allSubjects.close(); } catch (Exception ignored) {}
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -298,8 +321,11 @@ public class DataBaseHandler{
         String name = null;
         try {
             ResultSet resultSet = getRSFromString(sql);
-            resultSet.next();
-            name = resultSet.getString("job");
+            if(resultSet!=null) {
+                resultSet.next();
+                name = resultSet.getString("job");
+            }
+            try {if (resultSet != null) resultSet.close();} catch (Exception ignored) {}
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -311,14 +337,17 @@ public class DataBaseHandler{
             String insert = "INSERT INTO " + MARK_TABLE + " (" + "`" + STUDENT_ID + "`" + "," + "`" + STUDENT_MARK +
                     "`"+ "," + "`" + STUDENT_MARK_DATE +
                     "`,`"+ STUDENT_MARK_SUBJECT+"`"+ ") VALUES (?,?,?,?)";
-            ResultSet student = getStudent(fullname, group);
-            student.next();
             PreparedStatement preparedStatement = getDbConnection().prepareStatement(insert);
-            preparedStatement.setInt(1, student.getInt(USER_ID));
+            ResultSet student = getStudent(fullname, group);
+            if(student!=null) {
+                student.next();
+                preparedStatement.setInt(1, student.getInt(USER_ID));
+            }
             preparedStatement.setInt(2, mark);
             preparedStatement.setDate(3, java.sql.Date.valueOf(date));
             preparedStatement.setString(4, TEACHER_SUBJECT);
             preparedStatement.executeUpdate();
+            try {if(student!=null)student.close(); } catch (Exception ignored) {}
         }
         catch (SQLException | NullPointerException e) {
             HAVE_ERROR = 1;
@@ -331,12 +360,11 @@ public class DataBaseHandler{
         try {
             ResultSet resultSet = getRSFromString(sql);
             if(resultSet==null) return false;
-            resultSet.next();
-            System.out.println(resultSet.getString("password"));
-            System.out.println(password);
+            else resultSet.next();
             if(resultSet.getString("password").equals(md5Custom(password))){
                 return true;
             }
+            try {resultSet.close(); } catch (Exception ignored) {}
         } catch (SQLException e) {
             System.out.println("check failed");
             return false;

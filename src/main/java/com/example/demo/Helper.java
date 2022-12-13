@@ -76,16 +76,5 @@ public class Helper {
             clip.setFramePosition(0);
             clip.start();
         }
-        //хуятину заменить на try with recourses
-        try {
-            if (ais != null) {
-                ais.close();
-            }
-            if (clip != null) {
-                clip.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
