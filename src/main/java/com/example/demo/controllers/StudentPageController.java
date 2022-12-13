@@ -39,6 +39,7 @@ public class StudentPageController implements Initializable {
             FileOutputStream fos = new FileOutputStream("mymarks.xlsx");
             allMarksWorkbook.write(fos);
             fos.close();
+            allMarksWorkbook.close();
             Desktop desktop = null;
             if (Desktop.isDesktopSupported()) {
                 desktop = Desktop.getDesktop();
