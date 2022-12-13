@@ -16,16 +16,18 @@ import java.util.Date;
 import static com.example.demo.Const.*;
 import static com.example.demo.Helper.*;
 
-public class DataBaseHandler extends Configs {
+public class DataBaseHandler{
     private Connection dbConnection;
 
     public DataBaseHandler(){
         createDbConnection();
     }
     private void createDbConnection() {
-        String jdbcURL = "jdbc:mysql://"+dbHost+":"+dbPort+"/"+dbName+"?useSSL=false&serverTimezone=UTC";
+        Configs configs = new Configs();
+        String jdbcURL = "jdbc:mysql://"
+                +configs.dbHost+":"+configs.dbPort+"/"+configs.dbName+"?useSSL=false&serverTimezone=UTC";
         try {
-            dbConnection = DriverManager.getConnection(jdbcURL, dbUser, dbPass);
+            dbConnection = DriverManager.getConnection(jdbcURL, configs.dbUser, configs.dbPass);
             System.out.println("success connection");
         }
         catch (SQLException e) {
@@ -72,11 +74,14 @@ public class DataBaseHandler extends Configs {
         StringBuilder in = new StringBuilder();
         try {
             ResultSet resultSet = getRSFromString(select);
-            resultSet.next();
-            in.append("'").append(resultSet.getInt(USER_ID)).append("'");
-            while (resultSet.next()){
-                in.append(",'").append(resultSet.getInt(USER_ID)).append("'");
+            if(resultSet!=null) {
+                resultSet.next();
+                in.append("'").append(resultSet.getInt(USER_ID)).append("'");
+                while (resultSet.next()) {
+                    in.append(",'").append(resultSet.getInt(USER_ID)).append("'");
+                }
             }
+            try { if (resultSet != null) resultSet.close(); } catch (Exception ignored) {}
         } catch (SQLException e) {
             HAVE_ERROR = 1;
             e.printStackTrace();
@@ -183,13 +188,12 @@ public class DataBaseHandler extends Configs {
     }
     // authorization boolean function for teachers
     public boolean checkTeacher(String email,String password){
-        password = md5Custom(password);
         String selectTeacher = "SELECT * FROM "+ TEACHERS_TABLE+" WHERE email = '"+email+"'";
         try {
             ResultSet teacher = getRSFromString(selectTeacher);
             if(teacher==null) return false;
             teacher.next();
-            if(teacher.getString("password").equals(password)){
+            if(teacher.getString("password").equals(md5Custom(password))){
                 return true;
             }
         } catch (SQLException e) {
@@ -323,7 +327,6 @@ public class DataBaseHandler extends Configs {
     }
     //authorization boolean function for students
     public boolean checkStudent(String email, String password) {
-        password = md5Custom(password);
         String sql = "SELECT * FROM "+ USER_TABLE+" WHERE email = '"+email+"'";
         try {
             ResultSet resultSet = getRSFromString(sql);
@@ -331,7 +334,7 @@ public class DataBaseHandler extends Configs {
             resultSet.next();
             System.out.println(resultSet.getString("password"));
             System.out.println(password);
-            if(resultSet.getString("password").equals(password)){
+            if(resultSet.getString("password").equals(md5Custom(password))){
                 return true;
             }
         } catch (SQLException e) {
