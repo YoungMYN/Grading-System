@@ -1,8 +1,7 @@
 package com.example.demo.controllers;
 
-import com.example.demo.Const;
+
 import com.example.demo.DataBaseHandler;
-import com.example.demo.Helper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -29,7 +28,7 @@ public class StudentPageController implements Initializable {
     @FXML
     protected void showAllMarks(){
         DataBaseHandler baseHandler = new DataBaseHandler();
-        Workbook allMarksWorkbook = baseHandler.getAllMarksInExcel(STUDENT_NAME);
+        Workbook allMarksWorkbook = baseHandler.getAllStudentMarksInExcel(STUDENT_MAIL);
         Path path = Paths.get("mymarks.xlsx");
         if(Files.exists(path)){
             File marksFile =  new File(String.valueOf(path));
@@ -66,6 +65,7 @@ public class StudentPageController implements Initializable {
         STUDENT_NAME = null;
         setScene(event,"/com/example/demo/StartPage.fxml");
     }
+    //adding information about user to the box with logout function
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         info.setPromptText(STUDENT_NAME);

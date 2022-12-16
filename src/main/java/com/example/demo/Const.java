@@ -1,6 +1,7 @@
 package com.example.demo;
 
 public class Const {
+    //namespace of tables and other final constants
     public static final String CURRENT_TIMEZONE = "Europe/Moscow";
 
     public static final String USER_TABLE = "users";
@@ -8,6 +9,7 @@ public class Const {
     public static final String USER_ID = "iduser";
     public static final String USER_NAME = "fullname";
     public static final String USER_GROUP= "group";
+    public static final String USER_MAIL = "email";
 
     public static final String MARK_TABLE = "marks";
 

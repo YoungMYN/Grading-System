@@ -14,19 +14,13 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLDataException;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 
 import javafx.scene.control.TextField;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-
+//controller for a StatisticPage.fxml, responsible for getting the statistics of the selected group
 public class StatisticController implements Initializable {
     @FXML
     private ComboBox<String> info;
@@ -34,7 +28,8 @@ public class StatisticController implements Initializable {
     private TextField errorWindow;
     @FXML
     private ComboBox<String> statisticGroup;
-
+    //controller main function, opens Excel file with all marks in selected group
+    // (in the subject taught by the current teacher)
     @FXML
     protected void onGetExelButtonClick(){
         if(statisticGroup.getSelectionModel().getSelectedItem() == null){
@@ -42,47 +37,19 @@ public class StatisticController implements Initializable {
         }
         else {
             DataBaseHandler dataBaseHandler = new DataBaseHandler();
-            Workbook statisticsWorkbook = new XSSFWorkbook();
-            Sheet sheet = statisticsWorkbook.createSheet(statisticGroup.getSelectionModel().getSelectedItem());
-            ResultSet statByCurrentSubject = dataBaseHandler.
-                    getAllStudentsWithMarksByCurrentSubject(statisticGroup.getSelectionModel().getSelectedItem());
-            ArrayList<String> columnNames = new ArrayList<>();
-            try {
-                Row subjectRow = sheet.createRow(0);
-                subjectRow.createCell(0).setCellValue(Helper.TEACHER_SUBJECT);
-                Row datesRow = sheet.createRow(1);
-                ResultSetMetaData metaData = statByCurrentSubject.getMetaData();
-                for (int i = 2; i <= metaData.getColumnCount(); i++) {
-                    String nameOfColumn = metaData.getColumnName(i);
-                    columnNames.add(nameOfColumn);
-                    datesRow.createCell(i - 2).setCellValue(nameOfColumn);
-                }
-                int i = 1;
-                while (statByCurrentSubject.next()) {
-                    i++;
-                    Row studentMarksRow = sheet.createRow(i);
-                    for (int j = 0; j < columnNames.size(); j++) {
-                        try {
-                            if (statByCurrentSubject.getString(columnNames.get(j)) == null) {
-                                studentMarksRow.createCell(j)
-                                        .setCellValue("");
-                            } else {
-                                studentMarksRow.createCell(j)
-                                        .setCellValue(statByCurrentSubject.getInt(columnNames.get(j)));
-                            }
-                        } catch (SQLDataException | NumberFormatException e) {
-                            studentMarksRow.createCell(j)
-                                    .setCellValue(statByCurrentSubject.getString(columnNames.get(j)));
-                        }
-                    }
-                }
+            Workbook statisticsWorkbook = dataBaseHandler
+                    .getAllGroupMarksInExcel(statisticGroup.getSelectionModel().getSelectedItem());
+            try{
+                //deleting previous file (old saved version)
                 Path path = Paths.get("stat.xlsx");
                 if (Files.exists(path)) {
                     File statisticsFile = new File(String.valueOf(path));
                     statisticsFile.delete();
                 }
+                //creating new file
                 FileOutputStream fos = new FileOutputStream("stat.xlsx");
                 statisticsWorkbook.write(fos);
+                //trying to get desktop and open our file
                 Desktop desktop = null;
                 if (Desktop.isDesktopSupported()) {
                     desktop = Desktop.getDesktop();
@@ -96,10 +63,8 @@ public class StatisticController implements Initializable {
                 }
                 fos.close();
                 statisticsWorkbook.close();
-            } catch (SQLException e) {
-                Helper.HAVE_ERROR = 1;
-                e.printStackTrace();
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 if (e.getMessage().equals("stat.xlsx" +
                         " (The process cannot access the file because it is being used by another process)")) {
                     System.out.println("file is opening or already open");
@@ -108,6 +73,7 @@ public class StatisticController implements Initializable {
                 }
             }
         }
+        //just for fun added 2 sounds for different occasions
         File sound;
         if(Helper.HAVE_ERROR==0){
             sound= new File("src\\main\\resources\\com\\example\\demo\\added.wav");

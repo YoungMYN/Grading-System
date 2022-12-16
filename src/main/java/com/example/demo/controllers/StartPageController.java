@@ -4,8 +4,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 
 import static com.example.demo.Helper.*;
-
+//simple start page controller
 public class StartPageController {
+    //init like a teacher or student
     @FXML
     protected void setTeacherMode(ActionEvent event){
         ARE_TEACHER = 1;
