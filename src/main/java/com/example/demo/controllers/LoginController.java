@@ -26,13 +26,13 @@ public class LoginController{
             System.out.println("success login by teacher");
             TEACHER_NAME = dataBaseHandler.getTeacherName(email.getText());
             TEACHER_SUBJECT = dataBaseHandler.getTeacherSubject(email.getText());
-            setScene(event,"/com/example/demo/AddOrCheck.fxml");
+            setScene(event, "/com/example/demo/pages/AddOrCheck.fxml");
         }
         else if(ARE_TEACHER == 0 & dataBaseHandler.checkUser(email.getText(), password.getText())){
             System.out.println("success login by student");
             STUDENT_NAME = dataBaseHandler.getStudentName(email.getText());
             STUDENT_MAIL = email.getText();
-            setScene(event,"/com/example/demo/StudentPage.fxml");
+            setScene(event, "/com/example/demo/pages/StudentPage.fxml");
         }
         //if login failed, shows text of error to user
         else {
@@ -44,6 +44,6 @@ public class LoginController{
     //back to start page
     @FXML
     protected void home(ActionEvent event){
-        setScene(event,"/com/example/demo/StartPage.fxml");
+        setScene(event, "/com/example/demo/pages/StartPage.fxml");
     }
 }

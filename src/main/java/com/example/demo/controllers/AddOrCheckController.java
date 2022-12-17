@@ -16,18 +16,18 @@ public class AddOrCheckController implements Initializable {
     //shows scene with adding a new mark
     @FXML
     protected void onAddButtonClick(ActionEvent event){
-        Helper.setScene(event,"/com/example/demo/AddingPage.fxml");
+        Helper.setScene(event, "/com/example/demo/pages/AddingPage.fxml");
     }
 
     //shows scene with statistics by existing marks
     @FXML
     protected void onCheckButtonClick(ActionEvent event) {
-        Helper.setScene(event,"/com/example/demo/StatisticPage.fxml");
+        Helper.setScene(event, "/com/example/demo/pages/StatisticPage.fxml");
     }
 
     @FXML
     protected void logout(ActionEvent event){
-        Helper.setScene(event,"/com/example/demo/StartPage.fxml");
+        Helper.setScene(event, "/com/example/demo/pages/StartPage.fxml");
     }
 
     @Override

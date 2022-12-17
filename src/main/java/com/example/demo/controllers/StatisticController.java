@@ -76,11 +76,11 @@ public class StatisticController implements Initializable {
         //just for fun added 2 sounds for different occasions
         File sound;
         if(Helper.HAVE_ERROR==0){
-            sound= new File("src\\main\\resources\\com\\example\\demo\\added.wav");
+            sound= new File("src\\main\\resources\\com\\example\\demo\\audio\\added.wav");
             errorWindow.setVisible(false);
         }
         else {
-            sound= new File("src\\main\\resources\\com\\example\\demo\\error.wav");
+            sound= new File("src\\main\\resources\\com\\example\\demo\\audio\\error.wav");
             errorWindow.setVisible(true);
             Helper.HAVE_ERROR=0;
         }
@@ -89,12 +89,12 @@ public class StatisticController implements Initializable {
     @FXML
     protected void logout(ActionEvent event){
         Helper.TEACHER_SUBJECT = null;
-        Helper.setScene(event,"/com/example/demo/StartPage.fxml");
+        Helper.setScene(event, "/com/example/demo/pages/StartPage.fxml");
     }
     //moves user to previous page
     @FXML
     protected void backAction(ActionEvent event){
-        Helper.setScene(event,"/com/example/demo/AddOrCheck.fxml");
+        Helper.setScene(event, "/com/example/demo/pages/AddOrCheck.fxml");
     }
 
     @Override

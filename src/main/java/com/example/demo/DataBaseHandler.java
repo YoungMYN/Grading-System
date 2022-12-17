@@ -75,6 +75,7 @@ public class DataBaseHandler{
         }
         return resultSet;
     }
+
     //function that returns the ResultSet of a table with all grades of students in the selected group
     public ResultSet getAllStudentsWithMarksByCurrentSubject (String group){
         //define a list of all student IDs in the group

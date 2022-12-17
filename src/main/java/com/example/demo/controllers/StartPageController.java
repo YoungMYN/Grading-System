@@ -10,11 +10,11 @@ public class StartPageController {
     @FXML
     protected void setTeacherMode(ActionEvent event){
         ARE_TEACHER = 1;
-        setScene(event,"/com/example/demo/LoginPage.fxml");
+        setScene(event, "/com/example/demo/pages/LoginPage.fxml");
     }
     @FXML
     protected void setStudentMode(ActionEvent event){
         ARE_TEACHER = 0;
-        setScene(event,"/com/example/demo/LoginPage.fxml");
+        setScene(event, "/com/example/demo/pages/LoginPage.fxml");
     }
 }

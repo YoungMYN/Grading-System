@@ -63,7 +63,7 @@ public class StudentPageController implements Initializable {
     @FXML
     protected void logout(ActionEvent event){
         STUDENT_NAME = null;
-        setScene(event,"/com/example/demo/StartPage.fxml");
+        setScene(event, "/com/example/demo/pages/StartPage.fxml");
     }
     //adding information about user to the box with logout function
     @Override

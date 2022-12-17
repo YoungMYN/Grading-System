@@ -56,13 +56,13 @@ public class AddingController implements Initializable {
         //playing sound(success/fail) and updating the page for new data
         File sound;
         if(Helper.HAVE_ERROR==0){
-            sound= new File("src\\main\\resources\\com\\example\\demo\\added.wav");
+            sound= new File("src\\main\\resources\\com\\example\\demo\\audio\\added.wav");
             previousGroup = groups.getSelectionModel().getSelectedItem();
-            Helper.setScene(event,"/com/example/demo/AddingPage.fxml");
+            Helper.setScene(event, "/com/example/demo/pages/AddingPage.fxml");
 
         }
         else {
-            sound= new File("src\\main\\resources\\com\\example\\demo\\error.wav");
+            sound= new File("src\\main\\resources\\com\\example\\demo\\audio\\error.wav");
             errorWindow.setVisible(true);
             Helper.HAVE_ERROR=0;
         }
@@ -84,13 +84,13 @@ public class AddingController implements Initializable {
     //show previous page
     @FXML
     protected void backAction(ActionEvent event){
-        Helper.setScene(event,"/com/example/demo/AddOrCheck.fxml");
+        Helper.setScene(event, "/com/example/demo/pages/AddOrCheck.fxml");
     }
     //show start page and logout from system
     @FXML
     protected void logout(ActionEvent event){
         autocomplete = null;
-        Helper.setScene(event,"/com/example/demo/StartPage.fxml");
+        Helper.setScene(event, "/com/example/demo/pages/StartPage.fxml");
     }
     //adding information from database and user
     @Override
