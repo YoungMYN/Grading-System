@@ -132,7 +132,7 @@ public class DataBaseHandler{
             select = "SELECT * " + "FROM " + MARK_TABLE+
                     " WHERE `" + STUDENT_ID + "` IN ("+in+")"+
                     " AND `"+ STUDENT_MARK_SUBJECT +"`='"+ TEACHER_SUBJECT+"'";
-            while (allFromUserTable.next()){//зgo to user
+            while (allFromUserTable.next()){//go to user
                 ResultSet marksOfCurrentUser = getRSFromString(select+
                         " AND `" + STUDENT_ID + "`= "
                         +allFromUserTable.getString("iduser"));

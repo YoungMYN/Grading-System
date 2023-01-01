@@ -6,14 +6,14 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #FAFAD2;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.controllers.AddOrCheckController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.controllers.AddOrCheckController">
    <children>
-      <Button layoutX="165.0" layoutY="73.0" mnemonicParsing="false" onAction="#onAddButtonClick" prefHeight="82.0" prefWidth="271.0" style="-fx-background-color: #AFEEEE;" text="AddMark">
+      <Button layoutX="165.0" layoutY="73.0" mnemonicParsing="false" onAction="#onAddButtonClick" prefHeight="82.0" prefWidth="271.0" text="AddMark">
          <font>
             <Font name="Broadway" size="31.0" />
          </font>
       </Button>
-      <Button layoutX="165.0" layoutY="200.0" mnemonicParsing="false" onAction="#onCheckButtonClick" prefHeight="82.0" prefWidth="271.0" style="-fx-background-color: #bef574;" text="Check Marks">
+      <Button layoutX="165.0" layoutY="200.0" mnemonicParsing="false" onAction="#onCheckButtonClick" prefHeight="82.0" prefWidth="271.0" text="Check Marks">
          <font>
             <Font name="Broadway" size="30.0" />
          </font>

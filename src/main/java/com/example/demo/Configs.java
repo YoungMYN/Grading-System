@@ -6,5 +6,5 @@ public class Configs {
     protected String dbPort = "7404";
     protected String dbName = "railway";
     protected String dbUser = "root";
-    protected String dbPass = "Pfz276Ccpy5JsU9wS2h9";
+    protected String dbPass = "SX21h5AlVp3kFT5WWHqd";
 }
